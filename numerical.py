@@ -517,3 +517,112 @@ def solve_system(matrix, vector, pivot_strategy=naive_pivot_strategy):
         invert_permutation(column_permutation),
         back_substitution(aug_matrix)
     )
+
+'''
+LU DECOMPOSITION
+'''
+
+def lu_decomposition(matrix, find_pivot=naive_pivot_strategy):
+    '''
+    Compute the LU decomposition of the given matrixx
+
+    Note that this function returns a tuple containing:
+     - a permutation representing which row in the original matrix that each row in the upper-triangular matrix corresponds to
+     - a lower-triangular matrix
+     - an upper-triangular matrix
+     - a permutation representing which column in the original matrix that each column in the upper-triangular matrix corresponds to
+    '''
+
+    row_permutation = list(range(len(matrix)))
+    lower_triangular = identity(len(matrix))
+    column_permutation = list(range(len(matrix[0])))
+    num_pivots_so_far = 0
+    for i in range(min(len(matrix), len(matrix[0]))):
+        # Attempt to find pivot with non-zero entry,
+        # but if no such pivot can be found,
+        # then skip this column:
+        try:
+            pivot_row, pivot_column = find_pivot(
+                matrix,
+                row_ind=num_pivots_so_far,
+                column_ind=i
+            )
+            matrix = matrix_row_swap(
+                matrix,
+                num_pivots_so_far,
+                pivot_row
+            )
+            matrix = matrix_column_swap(
+                matrix,
+                i,
+                pivot_column
+            )
+            row_permutation[num_pivots_so_far], \
+              row_permutation[pivot_row] = \
+              row_permutation[pivot_row], \
+              row_permutation[num_pivots_so_far]
+            column_permutation[i], column_permutation[pivot_column] = \
+              column_permutation[pivot_column], column_permutation[i]
+            # Also, adjust the lower triangular matrix to the row swap:
+            lower_triangular = matrix_column_swap(
+                lower_triangular,
+                num_pivots_so_far,
+                pivot_row
+            )
+            lower_triangular = matrix_row_swap(
+                lower_triangular,
+                num_pivots_so_far,
+                pivot_row
+            )
+        except ValueError:
+            continue
+        for j in range(num_pivots_so_far+1, len(matrix)):
+            lower_triangular[j][num_pivots_so_far] = \
+              matrix[j][i]/matrix[num_pivots_so_far][i]
+            matrix = matrix_row_addition(
+                matrix,
+                j,
+                num_pivots_so_far,
+                -matrix[j][i]/matrix[num_pivots_so_far][i]
+            )
+        num_pivots_so_far += 1
+    return row_permutation, lower_triangular, matrix, column_permutation
+
+def forward_substitution(matrix, vector):
+    '''
+    Given a lower-triangular matrix A and a vector b,
+     compute the solution to the equation A*x=b
+
+    Note that it is assumed that A is square,
+     and that all of the diagonal elements of A are 1.
+    '''
+
+    solution = [0]*len(matrix)
+    for i in range(len(matrix)):
+        solution[i] = vector[i]-sum([matrix[i][j]*solution[j] for j in range(i)])
+    return solution
+
+def solve_system_using_lu_decomp(lu_decomp, vector):
+    '''
+    Given the LU-decomposition of a matrix A
+     and a vector v,
+     compute the solution to the equation A*x=b
+    '''
+
+    row_perm, lower, upper, column_perm = lu_decomp
+    # Apply the row permutation to the output vector b:
+    rearranged_vector = apply_permutation(row_perm, vector)
+    # Compute (lower)^(-1)*rearranged_vector
+    lower_inverse_times_vector = forward_substitution(
+        lower,
+        rearranged_vector
+    )
+    # Compute (upper)^(-1)*(lower)^(-1)*rearranged_vector
+    solution = back_substitution(
+        build_augmented_matrix(upper, lower_inverse_times_vector)
+    )
+    # Finally, apply the inverted column permutation to the solution x:
+    return apply_permutation(
+        invert_permutation(column_perm),
+        solution
+    )

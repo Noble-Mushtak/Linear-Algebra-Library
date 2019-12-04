@@ -839,5 +839,326 @@ class TestSolvingSystems(TestCase):
         self.template_test_solve(scaled_partial_pivoting)
         self.template_test_solve(full_pivoting)
 
+class TestLUDecomposition(TestCase):
+    def test_naive_lu(self):
+        self.assertListEqual(
+            lu_decomposition(
+                [[8, 9, 1],
+                 [10, 2, 4],
+                 [10, 3, 0]]
+            )[0],
+            [0, 1, 2]
+        )
+        self.assertMatrixAlmostEqual(
+            lu_decomposition(
+                [[8, 9, 1],
+                 [10, 2, 4],
+                 [10, 3, 0]]
+            )[1],
+            [[1, 0, 0],
+             [5/4, 1, 0],
+             [5/4, 33/37, 1]]
+        )
+        self.assertMatrixAlmostEqual(
+            lu_decomposition(
+                [[8, 9, 1],
+                 [10, 2, 4],
+                 [10, 3, 0]]
+            )[2],
+            [[8, 9, 1],
+             [0, -37/4, 11/4],
+             [0, 0, -137/37]]
+        )
+        self.assertListEqual(
+            lu_decomposition(
+                [[8, 9, 1],
+                 [10, 2, 4],
+                 [10, 3, 0]]
+            )[3],
+            [0, 1, 2]
+        )
+        
+        self.assertListEqual(
+            lu_decomposition(
+                [[0, 0, 2, 9],
+                 [1, -5, 6, 7],
+                 [4, 6, 7, 8],
+                 [5, 1, 13, 15]]
+            )[0],
+            [1, 2, 0, 3]
+        )
+        self.assertMatrixAlmostEqual(
+            lu_decomposition(
+                [[0, 0, 2, 9],
+                 [1, -5, 6, 7],
+                 [4, 6, 7, 8],
+                 [5, 1, 13, 15]]
+            )[1],
+            [[1, 0, 0, 0],
+             [4, 1, 0, 0],
+             [0, 0, 1, 0],
+             [5, 1, 0, 1]]
+        )
+        self.assertMatrixAlmostEqual(
+            lu_decomposition(
+                [[0, 0, 2, 9],
+                 [1, -5, 6, 7],
+                 [4, 6, 7, 8],
+                 [5, 1, 13, 15]]
+            )[2],
+            [[1, -5, 6, 7],
+             [0, 26, -17, -20],
+             [0, 0, 2, 9],
+             [0, 0, 0, 0]]
+        )
+        self.assertListEqual(
+            lu_decomposition(
+                [[0, 0, 2, 9],
+                 [1, -5, 6, 7],
+                 [4, 6, 7, 8],
+                 [5, 1, 13, 15]]
+            )[3],
+            [0, 1, 2, 3]
+        )
+        
+        self.assertListEqual(
+            lu_decomposition(
+                [[0, 5, 0, -4],
+                 [-5, 0, 4, 4],
+                 [3, 4, -3, -4],
+                 [1, 0, -5, -4],
+                 [-1, -5, -2, -3]]
+            )[0],
+            [1, 0, 2, 3, 4]
+        )
+        self.assertMatrixAlmostEqual(
+            lu_decomposition(
+                [[0, 5, 0, -4],
+                 [-5, 0, 4, 4],
+                 [3, 4, -3, -4],
+                 [1, 0, -5, -4],
+                 [-1, -5, -2, -3]]
+            )[1],
+            [[1, 0, 0, 0, 0],
+             [0, 1, 0, 0, 0],
+             [-3/5, 4/5, 1, 0, 0],
+             [-1/5, 0, 7, 1, 0],
+             [1/5, -1, 14/3, 229/216, 1]]
+        )
+        self.assertMatrixAlmostEqual(
+            lu_decomposition(
+                [[0, 5, 0, -4],
+                 [-5, 0, 4, 4],
+                 [3, 4, -3, -4],
+                 [1, 0, -5, -4],
+                 [-1, -5, -2, -3]]
+            )[2],
+            [[-5, 0, 4, 4],
+             [0, 5, 0, -4],
+             [0, 0, -3/5, 8/5],
+             [0, 0, 0, -72/5],
+             [0, 0, 0, 0]]
+        )
+        self.assertListEqual(
+            lu_decomposition(
+                [[0, 5, 0, -4],
+                 [-5, 0, 4, 4],
+                 [3, 4, -3, -4],
+                 [1, 0, -5, -4],
+                 [-1, -5, -2, -3]]
+            )[3],
+            [0, 1, 2, 3]
+        )
+
+        self.assertListEqual(
+            lu_decomposition(
+                [[1, 5, 2, 4],
+                 [1, 5, 3, 7],
+                 [1, 5, 9, 8],
+                 [1, 5, 2, 6]]
+            )[0],
+            [0, 1, 2, 3]
+        )
+        self.assertMatrixAlmostEqual(
+            lu_decomposition(
+                [[1, 5, 2, 4],
+                 [1, 5, 3, 7],
+                 [1, 5, 9, 8],
+                 [1, 5, 2, 6]]
+            )[1],
+            [[1, 0, 0, 0],
+             [1, 1, 0, 0],
+             [1, 7, 1, 0],
+             [1, 0, -2/17, 1]]
+        )
+        self.assertMatrixAlmostEqual(
+            lu_decomposition(
+                [[1, 5, 2, 4],
+                 [1, 5, 3, 7],
+                 [1, 5, 9, 8],
+                 [1, 5, 2, 6]]
+            )[2],
+            [[1, 5, 2, 4],
+             [0, 0, 1, 3],
+             [0, 0, 0, -17],
+             [0, 0, 0, 0]]
+        )
+        self.assertListEqual(
+            lu_decomposition(
+                [[1, 5, 2, 4],
+                 [1, 5, 3, 7],
+                 [1, 5, 9, 8],
+                 [1, 5, 2, 6]]
+            )[3],
+            [0, 1, 2, 3]
+        )
+        
+    def test_forward_substitution(self):
+        self.assertListAlmostEqual(
+            forward_substitution(
+                [[1, 0, 0, 0],
+                 [9, 1, 0, 0],
+                 [4, -7, 1, 0],
+                 [9, 8, 5, 1]],
+                [2, 3, 9, -10]
+            ),
+            [2, -15, -104, 612]
+        )
+        self.assertListAlmostEqual(
+            forward_substitution(
+                [[1, 0, 0, 0],
+                 [1, 1, 0, 0],
+                 [0, 1, 1, 0],
+                 [2, 4, 1, 1]],
+                [8, 1, -100, 2]
+            ),
+            [8, -7, -93, 107]
+        )
+     
+    def template_test_lu_solve(self, pivot_strategy):
+        self.assertListAlmostEqual(
+            solve_system_using_lu_decomp(
+                lu_decomposition(
+                    [[1, 0],
+                     [0, 1]],
+                    pivot_strategy
+                ),
+                [3, 2]
+            ),
+            [3, 2]
+        )
+        # NOTE: This represents solve_system_using_lu_decomp
+        #       attempting to solve an unsolvable system
+        with self.assertRaises(ValueError):
+            solve_system_using_lu_decomp(
+                lu_decomposition(
+                    [[7],
+                     [4]],
+                    pivot_strategy
+                ),
+                [3, 2]
+            )
+        self.assertListAlmostEqual(
+            matrix_vector_prod(
+                [[7, 9, 6],
+                 [4, 3, 5]],
+                solve_system_using_lu_decomp(
+                    lu_decomposition(
+                        [[7, 9, 6],
+                         [4, 3, 5]],
+                        pivot_strategy
+                    ),
+                    [3, 2]
+                )
+            ),
+            [3, 2]
+        )
+        self.assertListAlmostEqual(
+            solve_system_using_lu_decomp(
+                lu_decomposition(
+                    [[7, 9, 6],
+                     [4, 3, 5],
+                     [8, 7, 2]],
+                    pivot_strategy
+                ),
+                [3, -1, 6]
+            ),
+            [51/109, 64/109, -101/109]
+        )
+        self.assertListAlmostEqual(
+            solve_system_using_lu_decomp(
+                lu_decomposition(
+                    [[1e-17, 1],
+                     [1, 2]],
+                    pivot_strategy
+                ),
+                [1,3]
+            ),
+            [1, 1]
+        )
+        self.assertListAlmostEqual(
+            solve_system_using_lu_decomp(
+                lu_decomposition(
+                    [[0.0003, 1.566],
+                     [0.3454, -2.436]],
+                    pivot_strategy
+                ),
+                [1.569, 1.018]
+            ),
+            [10, 1]
+        )
+        self.assertListAlmostEqual(
+            solve_system_using_lu_decomp(
+                lu_decomposition(
+                    [[1, 1, 1],
+                     [1, 1, 1],
+                     [1, 1, 1]],
+                    pivot_strategy
+                ),
+                [2, 2, 2]
+            ),
+            [2, 0, 0]
+        )
+        self.assertListAlmostEqual(
+            matrix_vector_prod(
+                [[1, 1, 2, 8],
+                 [1, 2, 3, -10],
+                 [1, 3, 4, 6]],
+                solve_system_using_lu_decomp(
+                    lu_decomposition(
+                        [[1, 1, 2, 8],
+                         [1, 2, 3, -10],
+                         [1, 3, 4, 6]],
+                        pivot_strategy
+                    ),
+                    [2, 3, 4]
+                )
+            ),
+            [2, 3, 4]
+        )
+        self.assertListAlmostEqual(
+            matrix_vector_prod(
+                [[1, 1, 2, 8],
+                 [1, 2, 3, -10],
+                 [1, 3, 4, 6]],
+                solve_system_using_lu_decomp(
+                    lu_decomposition(
+                        [[1, 1, 2, 8],
+                         [1, 2, 3, -10],
+                         [1, 3, 4, 6]],
+                        pivot_strategy
+                    ),
+                    [-10, 4/5, 67.8]
+                )
+            ),
+            [-10, 4/5, 67.8]
+        )
+
+    def test_lu_solve(self):
+        self.template_test_lu_solve(naive_pivot_strategy)
+        self.template_test_lu_solve(simple_partial_pivoting)
+        self.template_test_lu_solve(scaled_partial_pivoting)
+        self.template_test_lu_solve(full_pivoting)
+
 if __name__ == "__main__":
     unittest.main()
