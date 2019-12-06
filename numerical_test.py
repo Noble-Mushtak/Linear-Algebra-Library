@@ -1361,7 +1361,6 @@ class TestLUDecomposition(TestCase):
             ),
             [65, -11, 68, 57]
         )
-                
 
     def test_lu_solve(self):
         self.template_test_lu_solve(naive_pivot_strategy)
@@ -1720,6 +1719,338 @@ class TestImageKernelInverse(TestCase):
             ),
             [[-39/68, 51/68, 1, -58/68]]
         )
+    
+    def template_test_singular(self, pivot_strategy):
+        self.assertEqual(
+            is_singular_using_lu_decomp(
+                lu_decomposition(
+                    identity(10),
+                    pivot_strategy
+                )
+            ),
+            False
+        )
+        self.assertEqual(
+            is_singular_using_lu_decomp(
+                lu_decomposition(
+                    [[8, 9, 1],
+                     [10, 2, 4],
+                     [10, 3, 0]],
+                    pivot_strategy
+                )
+            ),
+            False
+        )
+        self.assertEqual(
+            is_singular_using_lu_decomp(
+                lu_decomposition(
+                    [[-2, -8, -10, -7, -4],
+                     [2, 2, 10, 9, -7],
+                     [-3, 5, 8, -4, -10],
+                     [-6, 7, 0, 2, -1],
+                     [-5, 4, -7, 3, 9]],
+                    pivot_strategy
+                )
+            ),
+            False
+        )
+        self.assertEqual(
+            is_singular_using_lu_decomp(
+                lu_decomposition(
+                    [[9, 9, -10, 8, -4],
+                     [-5, 2, -2, -2, 7],
+                     [8, -4, 7, 7, -6],
+                     [-9, -7, 2, 1, 8],
+                     [3, 1, -9, 6, -2]],
+                    pivot_strategy
+                )
+            ),
+            False
+        )
+        self.assertEqual(
+            is_singular_using_lu_decomp(
+                lu_decomposition(
+                    [[0, 0, 0],
+                     [0, 0, 0],
+                     [0, 0, 0]],
+                    pivot_strategy
+                )
+            ),
+            True
+        )
+        self.assertEqual(
+            is_singular_using_lu_decomp(
+                lu_decomposition(
+                    [[0, 0, 0],
+                     [0, 2, 0],
+                     [0, 3, 0]],
+                    pivot_strategy
+                )
+            ),
+            True
+        )
+        self.assertEqual(
+            is_singular_using_lu_decomp(
+                lu_decomposition(
+                    [[0, 0, 0],
+                     [0, 2, 3],
+                     [0, 0, 0]],
+                    pivot_strategy
+                )
+            ),
+            True
+        )
+        self.assertEqual(
+            is_singular_using_lu_decomp(
+                lu_decomposition(
+                    [[1, 8, 7, 4],
+                     [5, 3, -2, 6],
+                     [8, 9, 1, 3],
+                     [4, 7, 3, 2]],
+                    pivot_strategy
+                )
+            ),
+            True
+        )
+        self.assertEqual(
+            is_singular_using_lu_decomp(
+                lu_decomposition(
+                    [[1, 8, 7, 4],
+                     [5, 3, -2, 6],
+                     [8, 9, 1, 3],
+                     [4, 7, 3, 2]],
+                    pivot_strategy
+                )
+            ),
+            True
+        )
+        self.assertEqual(
+            is_singular_using_lu_decomp(
+                lu_decomposition(
+                    [[0, 0, 2, 9],
+                     [1, -5, 6, 7],
+                     [4, 6, 7, 8],
+                     [5, 1, 13, 15]],
+                    pivot_strategy
+                )
+            ),
+            True
+        )
+        self.assertEqual(
+            is_singular_using_lu_decomp(
+                lu_decomposition(
+                    [[1, 5, 2, 4],
+                     [1, 5, 3, 7],
+                     [1, 5, 9, 8],
+                     [1, 5, 2, 6]],
+                    pivot_strategy
+                )
+            ),
+            True
+        )
+
+    def test_singular(self):
+        self.template_test_singular(naive_pivot_strategy)
+        self.template_test_singular(simple_partial_pivoting)
+        self.template_test_singular(scaled_partial_pivoting)
+        self.template_test_singular(full_pivoting)
+
+    def template_test_inverse(self, pivot_strategy):
+        self.assertMatrixAlmostEqual(
+            find_inverse_using_lu_decomp(
+                lu_decomposition(
+                    identity(10),
+                    pivot_strategy
+                )
+            ),
+            identity(10)
+        )
+        self.assertMatrixAlmostEqual(
+            find_inverse_using_lu_decomp(
+                lu_decomposition(
+                    [[8, 9, 1],
+                     [10, 2, 4],
+                     [10, 3, 0]],
+                    pivot_strategy
+                )
+            ),
+            [[-12/274, 3/274, 34/274],
+             [40/274, -10/274, -22/274],
+             [10/274, 66/274, -74/274]]
+        )
+        self.assertMatrixAlmostEqual(
+            find_inverse_using_lu_decomp(
+                lu_decomposition(
+                    [[-2, -8, -10, -7, -4],
+                     [2, 2, 10, 9, -7],
+                     [-3, 5, 8, -4, -10],
+                     [-6, 7, 0, 2, -1],
+                     [-5, 4, -7, 3, 9]],
+                    pivot_strategy
+                )
+            ),
+            [[-2025/11965, -3645/11965, -7705/11965, 10585/11965, -11120/11965],
+             [-1825/11965, -3285/11965, -5910/11965, 9835/11965, -8840/11965],
+             [479/11965, 2298/11965, 5675/11965, -8377/11965, 7375/11965],
+             [293/11965, 1006/11965, -900/11965, 696/11965, -10/11965],
+             [-39/11965, 887/11965, 3060/11965, -5238/11965, 4820/11965]]
+        )
+        self.assertMatrixAlmostEqual(
+            find_inverse_using_lu_decomp(
+                lu_decomposition(
+                    apply_permutation(
+                        [3, 1, 2, 4, 0],
+                        identity(5)
+                    ),
+                    pivot_strategy
+                )
+            ),
+            apply_permutation(
+                invert_permutation([3, 1, 2, 4, 0]),
+                identity(5)
+            )
+        )
+
+    def test_inverse(self):
+        self.template_test_inverse(naive_pivot_strategy)
+        self.template_test_inverse(simple_partial_pivoting)
+        self.template_test_inverse(scaled_partial_pivoting)
+        self.template_test_inverse(full_pivoting)
+    
+    def template_test_determinant(self, pivot_strategy):
+        self.assertAlmostEqual(
+            find_determinant_using_lu_decomp(
+                lu_decomposition(
+                    identity(10),
+                    pivot_strategy
+                )
+            ),
+            1
+        )
+        self.assertAlmostEqual(
+            find_determinant_using_lu_decomp(
+                lu_decomposition(
+                    [[8, 9, 1],
+                     [10, 2, 4],
+                     [10, 3, 0]],
+                    pivot_strategy
+                )
+            ),
+            274
+        )
+        self.assertAlmostEqual(
+            find_determinant_using_lu_decomp(
+                lu_decomposition(
+                    [[-2, -8, -10, -7, -4],
+                     [2, 2, 10, 9, -7],
+                     [-3, 5, 8, -4, -10],
+                     [-6, 7, 0, 2, -1],
+                     [-5, 4, -7, 3, 9]],
+                    pivot_strategy
+                )
+            ),
+            11965
+        )
+        self.assertAlmostEqual(
+            find_determinant_using_lu_decomp(
+                lu_decomposition(
+                    [[9, 9, -10, 8, -4],
+                     [-5, 2, -2, -2, 7],
+                     [8, -4, 7, 7, -6],
+                     [-9, -7, 2, 1, 8],
+                     [3, 1, -9, 6, -2]],
+                    pivot_strategy
+                )
+            ),
+            9848
+        )
+        self.assertAlmostEqual(
+            find_determinant_using_lu_decomp(
+                lu_decomposition(
+                    [[0, 0, 0],
+                     [0, 0, 0],
+                     [0, 0, 0]],
+                    pivot_strategy
+                )
+            ),
+            0
+        )
+        self.assertAlmostEqual(
+            find_determinant_using_lu_decomp(
+                lu_decomposition(
+                    [[0, 0, 0],
+                     [0, 2, 0],
+                     [0, 3, 0]],
+                    pivot_strategy
+                )
+            ),
+            0
+        )
+        self.assertAlmostEqual(
+            find_determinant_using_lu_decomp(
+                lu_decomposition(
+                    [[0, 0, 0],
+                     [0, 2, 3],
+                     [0, 0, 0]],
+                    pivot_strategy
+                )
+            ),
+            0
+        )
+        self.assertAlmostEqual(
+            find_determinant_using_lu_decomp(
+                lu_decomposition(
+                    [[1, 8, 7, 4],
+                     [5, 3, -2, 6],
+                     [8, 9, 1, 3],
+                     [4, 7, 3, 2]],
+                    pivot_strategy
+                )
+            ),
+            0
+        )
+        self.assertAlmostEqual(
+            find_determinant_using_lu_decomp(
+                lu_decomposition(
+                    [[1, 8, 7, 4],
+                     [5, 3, -2, 6],
+                     [8, 9, 1, 3],
+                     [4, 7, 3, 2]],
+                    pivot_strategy
+                )
+            ),
+            0
+        )
+        self.assertAlmostEqual(
+            find_determinant_using_lu_decomp(
+                lu_decomposition(
+                    [[0, 0, 2, 9],
+                     [1, -5, 6, 7],
+                     [4, 6, 7, 8],
+                     [5, 1, 13, 15]],
+                    pivot_strategy
+                )
+            ),
+            0
+        )
+        self.assertAlmostEqual(
+            find_determinant_using_lu_decomp(
+                lu_decomposition(
+                    [[1, 5, 2, 4],
+                     [1, 5, 3, 7],
+                     [1, 5, 9, 8],
+                     [1, 5, 2, 6]],
+                    pivot_strategy
+                )
+            ),
+            0
+        )
+
+    def test_determinant(self):
+        self.template_test_determinant(naive_pivot_strategy)
+        self.template_test_determinant(simple_partial_pivoting)
+        self.template_test_determinant(scaled_partial_pivoting)
+        self.template_test_determinant(full_pivoting)
 
 if __name__ == "__main__":
     unittest.main()

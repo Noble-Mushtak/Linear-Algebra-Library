@@ -644,13 +644,13 @@ def reconstruct_matrix(lu_decomp):
     return PLUQ
 
 '''
-IMAGE, KERNEL, AND INVERSE
+IMAGE, KERNEL, INVERSE, AND DETERMINANT
 '''
 
 def find_image_using_lu_decomp(lu_decomp):
     '''
     Given the LU-decomposition of a matrix A,
-     return a list of vectors which form a basis for the image of A
+     compute a list of vectors which form a basis for the image of A
     '''
 
     pivots = []
@@ -705,10 +705,12 @@ def find_kernel_using_lu_decomp(lu_decomp):
                 ])
                 -upper[i-j-1][free_var_index]
             ) / upper[i-j-1][pivot]
-        basis.append(apply_permutation(
-            invert_permutation(column_perm),
-            solution
-        ))
+        basis.append(
+            apply_permutation(
+                invert_permutation(column_perm),
+                solution
+            )
+        )
         
     for i in range(len(upper)):
         pivot_index = 0
@@ -728,3 +730,47 @@ def find_kernel_using_lu_decomp(lu_decomp):
     for free_var_index in range(last_pivot+1, len(upper[0])):
         add_solution(free_var_index)
     return basis
+
+def is_singular_using_lu_decomp(lu_decomp):
+    '''
+    Given the LU-decomposition of a square matrix A,
+     compute whether the matrix is singular or not
+    '''
+    row_perm, lower, upper, column_perm = lu_decomp
+    if len(row_perm) != len(column_perm):
+        raise ValueError("The matrix must be square")
+    
+    return len(find_kernel_using_lu_decomp(lu_decomp)) != 0
+
+def find_inverse_using_lu_decomp(lu_decomp):
+    '''
+    Given the LU-decomposition of a square matrix A,
+     compute whether the matrix is singular or not
+    '''
+    if is_singular_using_lu_decomp(lu_decomp):
+        raise ValueError("The matrix must be non-singular")
+
+    row_perm, lower, upper, column_perm = lu_decomp
+    column_vectors = []
+    for standard_basis_vector in identity(len(row_perm)):
+        column_vectors.append(
+            solve_system_using_lu_decomp(
+                lu_decomp,
+                standard_basis_vector
+            )
+        )
+    return transpose(column_vectors)
+
+def find_determinant_using_lu_decomp(lu_decomp):
+    '''
+    Given the LU-decomposition of a square matrix A,
+     compute the determinant of the matrix
+    '''
+    row_perm, lower, upper, column_perm = lu_decomp
+    if len(row_perm) != len(column_perm):
+        raise ValueError("The matrix must be square")
+        
+    determinant = permutation_sign(row_perm)*permutation_sign(column_perm)
+    for i in range(len(row_perm)):
+        determinant *= upper[i][i]
+    return determinant
