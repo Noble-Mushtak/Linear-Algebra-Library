@@ -626,3 +626,105 @@ def solve_system_using_lu_decomp(lu_decomp, vector):
         invert_permutation(column_perm),
         solution
     )
+
+def reconstruct_matrix(lu_decomp):
+    '''
+    Given the LU decomposition of a matrix A,
+     compute the matrix A
+    '''
+
+    row_perm, lower, upper, column_perm = lu_decomp
+    Q = apply_permutation(column_perm, identity(len(column_perm)))
+    UQ = matrix_matrix_prod(upper, Q)
+    LUQ = matrix_matrix_prod(lower, UQ)
+    PLUQ = apply_permutation(
+        invert_permutation(row_perm),
+        LUQ
+    )
+    return PLUQ
+
+'''
+IMAGE, KERNEL, AND INVERSE
+'''
+
+def find_image_using_lu_decomp(lu_decomp):
+    '''
+    Given the LU-decomposition of a matrix A,
+     return a list of vectors which form a basis for the image of A
+    '''
+
+    pivots = []
+    column_vectors = transpose(reconstruct_matrix(lu_decomp))
+    
+    row_perm, lower, upper, column_perm = lu_decomp
+    for i in range(len(upper)):
+        pivot_index = 0
+        while pivot_index < len(upper[i]):
+            if abs(upper[i][pivot_index]) > TOLERANCE:
+                break
+            pivot_index += 1
+        if pivot_index == len(upper[i]):
+            break
+        pivots.append(pivot_index)
+    return [
+        column_vectors[index]
+        for index in
+        sorted([column_perm[pivot] for pivot in pivots])
+    ]
+
+def find_kernel_using_lu_decomp(lu_decomp):
+    '''
+    Given the LU-decomposition of a matrix A,
+     return a list of vectors which form a basis for the kernel of A
+    '''
+
+    pivots_so_far = []
+    last_pivot = -1
+    basis = []
+    row_perm, lower, upper, column_perm = lu_decomp
+
+    def add_solution(free_var_index):
+        '''
+        Given an index representing a column in upper
+         which corresponds to a free variable,
+         add a solution to the equation A*x=0 to basis.
+        '''
+        i = len(pivots_so_far)
+        
+        solution = [0]*len(upper[0])
+        solution[free_var_index] = 1
+        # We get the solution
+        #  by traversing the rows 0..(i-1) in reverse order
+        #  and solving for the component of the solution
+        #  corresponding to the pivot in that row
+        for j, pivot in enumerate(reversed(pivots_so_far)):
+            solution[pivot] = (
+                -sum([
+                    upper[i-j-1][pivots_so_far[-k-1]]*solution[pivots_so_far[-k-1]]
+                    for k in range(j)
+                ])
+                -upper[i-j-1][free_var_index]
+            ) / upper[i-j-1][pivot]
+        basis.append(apply_permutation(
+            invert_permutation(column_perm),
+            solution
+        ))
+        
+    for i in range(len(upper)):
+        pivot_index = 0
+        while pivot_index < len(upper[i]):
+            if abs(upper[i][pivot_index]) > TOLERANCE:
+                break
+            pivot_index += 1
+            
+        for free_var_index in range(last_pivot+1, pivot_index):
+            add_solution(free_var_index)
+            
+        last_pivot = pivot_index
+        if pivot_index == len(upper[i]):
+            break
+        pivots_so_far.append(pivot_index)
+        
+    for free_var_index in range(last_pivot+1, len(upper[0])):
+        add_solution(free_var_index)
+    return basis
