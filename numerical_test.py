@@ -2051,6 +2051,172 @@ class TestImageKernelInverse(TestCase):
         self.template_test_determinant(simple_partial_pivoting)
         self.template_test_determinant(scaled_partial_pivoting)
         self.template_test_determinant(full_pivoting)
+    
+    def test_naive_determinant(self):
+        self.assertAlmostEqual(
+            find_naive_determinant(
+                identity(5)
+            ),
+            1
+        )
+        self.assertAlmostEqual(
+            find_naive_determinant(
+                [[8, 9, 1],
+                 [10, 2, 4],
+                 [10, 3, 0]]
+            ),
+            274
+        )
+        self.assertAlmostEqual(
+            find_naive_determinant(
+                [[-2, -8, -10, -7, -4],
+                 [2, 2, 10, 9, -7],
+                 [-3, 5, 8, -4, -10],
+                 [-6, 7, 0, 2, -1],
+                 [-5, 4, -7, 3, 9]]
+            ),
+            11965
+        )
+        self.assertAlmostEqual(
+            find_naive_determinant(
+                [[9, 9, -10, 8, -4],
+                 [-5, 2, -2, -2, 7],
+                 [8, -4, 7, 7, -6],
+                 [-9, -7, 2, 1, 8],
+                 [3, 1, -9, 6, -2]]
+            ),
+            9848
+        )
+        self.assertAlmostEqual(
+            find_naive_determinant(
+                [[0, 0, 0],
+                 [0, 0, 0],
+                 [0, 0, 0]]
+            ),
+            0
+        )
+        self.assertAlmostEqual(
+            find_naive_determinant(
+                [[0, 0, 0],
+                 [0, 2, 0],
+                 [0, 3, 0]]
+            ),
+            0
+        )
+        self.assertAlmostEqual(
+            find_naive_determinant(
+                [[0, 0, 0],
+                 [0, 2, 3],
+                 [0, 0, 0]]
+            ),
+            0
+        )
+        self.assertAlmostEqual(
+            find_naive_determinant(
+                [[1, 8, 7, 4],
+                 [5, 3, -2, 6],
+                 [8, 9, 1, 3],
+                 [4, 7, 3, 2]]
+            ),
+            0
+        )
+        self.assertAlmostEqual(
+            find_naive_determinant(
+                [[1, 8, 7, 4],
+                 [5, 3, -2, 6],
+                 [8, 9, 1, 3],
+                 [4, 7, 3, 2]]
+            ),
+            0
+        )
+        self.assertAlmostEqual(
+            find_naive_determinant(
+                [[0, 0, 2, 9],
+                 [1, -5, 6, 7],
+                 [4, 6, 7, 8],
+                 [5, 1, 13, 15]]
+            ),
+            0
+        )
+        self.assertAlmostEqual(
+            find_naive_determinant(
+                [[1, 5, 2, 4],
+                 [1, 5, 3, 7],
+                 [1, 5, 9, 8],
+                 [1, 5, 2, 6]]
+            ),
+            0
+        )
+
+class TestQRDecomposition(TestCase):
+    def template_test_qr(self, matrix):
+        q, r = qr_decomposition(matrix)
+        for i in range(len(r)):
+            for j in range(min(len(r[i]), i)):
+                self.assertAlmostEqual(r[i][j], 0)
+        self.assertMatrixAlmostEqual(
+            matrix_matrix_prod(q, transpose(q)),
+            identity(len(matrix))
+        )
+        self.assertMatrixAlmostEqual(
+            matrix_matrix_prod(q, r),
+            matrix
+        )
+        
+    def test_qr(self):
+        self.template_test_qr(
+            [[1, 5, 2, 4],
+             [1, 5, 3, 7],
+             [1, 5, 9, 8],
+             [1, 5, 2, 6]]
+        )
+        self.template_test_qr(
+            [[1, 8, 7, 4],
+             [5, 3, -2, 6],
+             [8, 9, 1, 3],
+             [4, 7, 3, 2]]
+        )
+        self.template_test_qr(
+            [[-2, -8, -10, -7, -4],
+             [2, 2, 10, 9, -7],
+             [-3, 5, 8, -4, -10],
+             [-6, 7, 0, 2, -1],
+             [-5, 4, -7, 3, 9]]
+        )
+        self.template_test_qr(
+            [[9, 9, -10, 8, -4],
+             [-5, 2, -2, -2, 7],
+             [8, -4, 7, 7, -6],
+             [-9, -7, 2, 1, 8],
+             [3, 1, -9, 6, -2]]
+        )
+        self.template_test_qr(
+            [[2, 2],
+             [2, 1],
+             [1, 5]]
+        )
+        self.template_test_qr(
+            [[5, 3, -2],
+             [3, -2, -4],
+             [2, -3, -3],
+             [-1, 4, 4],
+             [-5, 2, -4],
+             [-2, -4, 3],
+             [-5, 1, 3],
+             [0, 1, 3],
+             [-1, 1, -5],
+             [2, 4, 0]]
+        )
+        self.template_test_qr(
+            [[8, 1, 8, 3],
+             [-9, -10, -7, 1],
+             [8, 4, 10, -6],
+             [3, -1, 3, 10],
+             [-5, -4, -2, -5],
+             [-5, 2, -4, 7],
+             [2, 8, 1, -6],
+             [-6, -10, -4, -7]]
+        )
 
 if __name__ == "__main__":
     unittest.main()

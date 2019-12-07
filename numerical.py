@@ -1,4 +1,5 @@
 import math
+import itertools
 
 '''
 Vectors are represented by arrays of numbers.
@@ -774,3 +775,78 @@ def find_determinant_using_lu_decomp(lu_decomp):
     for i in range(len(row_perm)):
         determinant *= upper[i][i]
     return determinant
+
+def find_naive_determinant(matrix):
+    '''
+    Compute the determinant of the given matrix
+     by looping through all the possible patterns
+    '''
+    if len(matrix) != len(matrix[0]):
+        raise ValueError("The matrix must be square")
+
+    determinant = 0
+    for perm in itertools.permutations(range(len(matrix))):
+        pattern = permutation_sign(perm)
+        for i, j in enumerate(perm):
+            pattern *= matrix[i][j]
+        determinant += pattern
+    return determinant
+
+'''
+QR FACTORIZATION AND LEAST-SQUARE SOLUTIONS
+'''
+
+def qr_decomposition(matrix):
+    '''
+    Compute the QR decomposition of the given matrix
+     using Householder reflections,
+     assuming the matrix has at least as many rows than columns
+
+    Note that this function outputs a tuple containing:
+     - An orthogonal (square) matrix
+     - An upper-triangular matrix which has the same dimensions as the given matrix
+    '''
+    if len(matrix) < len(matrix[0]):
+        raise ValueError("The matrix must have at least as many rows as columns")
+
+    q = identity(len(matrix))
+    r_so_far = matrix
+    for i in range(len(matrix[0])):
+        # alpha is the magnitude of the (i)th column vector,
+        #  ignoring the first i components
+        shortened_vector = [
+            0 if j < i else r_so_far[j][i]
+            for j in range(len(r_so_far))
+        ]
+        alpha = l2Norm(shortened_vector)
+        # If alpha and r_so_far[j][i] have the same sign,
+        #  switch the sign of alpha,
+        #  so we don't get huge cancellation
+        if (alpha*r_so_far[i][i]) > 0:
+            alpha *= -1
+
+        # Compute the difference between shortened_vector
+        #  and alpha*e_i
+        difference_vector = [
+            shortened_vector[j]-(alpha if j == i else 0)
+            for j in range(len(r_so_far))
+        ]
+        # Normalize this vector:
+        diff_vector_normalized = vector_scale(
+            difference_vector,
+            1/l2Norm(difference_vector)
+        )
+        # Compute the reflection matrix about diff_vector:
+        new_q = [
+            [
+               (1 if i == j else 0)
+               -2*diff_vector_normalized[i]*diff_vector_normalized[j]
+               for j in range(len(r_so_far))
+            ]
+            for i in range(len(r_so_far))
+        ]
+        # Update R with this new reflection:
+        r_so_far = matrix_matrix_prod(new_q, r_so_far)
+        # Also, update Q by taking the inverse of the reflection:
+        q = matrix_matrix_prod(q, transpose(new_q))
+    return q, r_so_far
