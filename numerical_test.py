@@ -2323,6 +2323,32 @@ class TestQRDecomposition(TestCase):
             ),
             [4.182845260598198, 0.906243151424816, -0.25343414362002603, 0.02235820796891005]
         )
+        self.assertListAlmostEqual(
+            calc_best_fit_coefficients(
+                [lambda x, y: 1, lambda x, y: x, lambda x, y: y],
+                [[(0, 1), 3],
+                 [(0, 2), 5],
+                 [(0, 4), 9],
+                 [(-4, 5), 2],
+                 [(-1, 2), 6],
+                 [(-3, 5), 2],
+                 [(-1, -3), 7]]
+            ),
+            [6.353367875647668, 1.0062176165803105, -0.08860103626943006]
+        )
+        self.assertListAlmostEqual(
+            calc_best_fit_coefficients(
+                [lambda x, y: 1, lambda x, y: x, lambda x, y: y, lambda x, y: x*y],
+                [[(0, 1), 3],
+                 [(0, 2), 5],
+                 [(0, 4), 9],
+                 [(-4, 5), 2],
+                 [(-1, 2), 6],
+                 [(-3, 5), 2],
+                 [(-1, -3), 7]]
+            ),
+            [1.792540278084278, -5.098874420657719, 1.5471198410946903, 1.4468108585301351]
+        )
 
 if __name__ == "__main__":
     unittest.main()
