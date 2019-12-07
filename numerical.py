@@ -793,7 +793,7 @@ def find_naive_determinant(matrix):
     return determinant
 
 '''
-QR FACTORIZATION AND LEAST-SQUARE SOLUTIONS
+QR DECOMPOSITION AND LEAST-SQUARE SOLUTIONS
 '''
 
 def qr_decomposition(matrix):
@@ -850,3 +850,46 @@ def qr_decomposition(matrix):
         # Also, update Q by taking the inverse of the reflection:
         q = matrix_matrix_prod(q, transpose(new_q))
     return q, r_so_far
+
+def find_least_squares_solution_using_qr_decomp(qr_decomp, vector):
+    '''
+    Given the QR decompositon of a matrix A, and a vector b,
+     compute the least-squares solution to the equation A*x=b
+     assuming that the columns of A are linearly independent
+
+    Note that this assumption applies that R is in row echelon form,
+     because it is an upper-triangular matrix with non-zero
+     diagonal entries.
+    '''
+
+    q, r = qr_decomp
+    vector_components = matrix_vector_prod(transpose(q), vector)
+    # Ignore components of the vector
+    #  which are perpendicular to the image of A:
+    for i in range(len(r[0]), len(vector_components)):
+        vector_components[i] = 0
+    return back_substitution(build_augmented_matrix(r, vector_components))
+
+def calc_best_fit_coefficients(funcs, points):
+    '''
+    Given a set of functions from R^n to R f1, f2, ..., fn,
+     and a set of points (x, y) from the cartesian product of R^n and R,
+     solve for the coefficients k1, k2, ..., kn
+     that minimizes the sum of squared errors of the following model:
+     y = k1*f1(x) + k2*f2(x) + ... + kn*fn(x)
+
+    Assumes that the functions f1, f2, ..., fn
+     are all linearly independent.
+    '''
+
+    matrix = [
+        # Unwrap the input if the input is a tuple.
+        # Otherwise, just apply the function normally.
+        [func(*point[0]) if type(point[0]) == tuple else func(point[0])
+         for func in funcs]
+        for point in points
+    ]
+    return find_least_squares_solution_using_qr_decomp(
+        qr_decomposition(matrix),
+        [point[1] for point in points]
+    )

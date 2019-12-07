@@ -2218,5 +2218,111 @@ class TestQRDecomposition(TestCase):
              [-6, -10, -4, -7]]
         )
 
+    def test_least_squares(self):
+        self.assertListAlmostEqual(
+            find_least_squares_solution_using_qr_decomp(
+                qr_decomposition(
+                    [[-2, -8, -10, -7, -4],
+                     [2, 2, 10, 9, -7],
+                     [-3, 5, 8, -4, -10],
+                     [-6, 7, 0, 2, -1],
+                     [-5, 4, -7, 3, 9]]
+                ),
+                [1, -3, 4, 5, 0]
+            ),
+            solve_system(
+                [[-2, -8, -10, -7, -4],
+                 [2, 2, 10, 9, -7],
+                 [-3, 5, 8, -4, -10],
+                 [-6, 7, 0, 2, -1],
+                 [-5, 4, -7, 3, 9]],
+                [1, -3, 4, 5, 0]
+            )
+        )
+        self.assertListAlmostEqual(
+            find_least_squares_solution_using_qr_decomp(
+                qr_decomposition(
+                    [[9, 9, -10, 8, -4],
+                     [-5, 2, -2, -2, 7],
+                     [8, -4, 7, 7, -6],
+                     [-9, -7, 2, 1, 8],
+                     [3, 1, -9, 6, -2]]
+                ),
+                [4, 5, 6, -2, 1]
+            ),
+            solve_system(
+                [[9, 9, -10, 8, -4],
+                 [-5, 2, -2, -2, 7],
+                 [8, -4, 7, 7, -6],
+                 [-9, -7, 2, 1, 8],
+                 [3, 1, -9, 6, -2]],
+                [4, 5, 6, -2, 1]
+            )
+        )
+        self.assertListAlmostEqual(
+            find_least_squares_solution_using_qr_decomp(
+                qr_decomposition(
+                    [[2, 2],
+                     [2, 1],
+                     [1, 5]]
+                ),
+                [1, -3, 4]
+            ),
+            [-1.4026845637583893, 1.1476510067114094]
+        )
+        self.assertListAlmostEqual(
+            find_least_squares_solution_using_qr_decomp(
+                qr_decomposition(
+                    [[5, 3, -2],
+                     [3, -2, -4],
+                     [2, -3, -3],
+                     [-1, 4, 4],
+                     [-5, 2, -4],
+                     [-2, -4, 3],
+                     [-5, 1, 3],
+                     [0, 1, 3],
+                     [-1, 1, -5],
+                     [2, 4, 0]]
+                ),
+                [1, -2, 3, 4, 7, 8, 100, 4, 4, 3]
+            ),
+            [-5.212920257428537, 1.305850891348219, 1.279570138594825]
+        )
+    
+    def test_best_fit(self):
+        self.assertListAlmostEqual(
+            calc_best_fit_coefficients(
+                [lambda x: 1, lambda x: x],
+                [[0, 5],
+                 [1, 4],
+                 [9, 8],
+                 [7, 6],
+                 [-4, -5]]
+            ),
+            [1.5053003533568918, 0.8056537102473497]
+        )
+        self.assertListAlmostEqual(
+            calc_best_fit_coefficients(
+                [lambda x: 1, lambda x: x, lambda x: x**2],
+                [[0, 5],
+                 [1, 4],
+                 [9, 8],
+                 [7, 6],
+                 [-4, -5]]
+            ),
+            [3.2741558338617645, 1.458455532656943, -0.11789592580849712]
+        )
+        self.assertListAlmostEqual(
+            calc_best_fit_coefficients(
+                [lambda x: 1, lambda x: x, lambda x: x**2, lambda x: x**3],
+                [[0, 5],
+                 [1, 4],
+                 [9, 8],
+                 [7, 6],
+                 [-4, -5]]
+            ),
+            [4.182845260598198, 0.906243151424816, -0.25343414362002603, 0.02235820796891005]
+        )
+
 if __name__ == "__main__":
     unittest.main()
