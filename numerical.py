@@ -232,6 +232,30 @@ def matrix_row_addition(matrix, row_index1, row_index2, scalar):
         for i in range(len(matrix))
     ]
 
+def matrix_column_addition(matrix, column_index1, column_index2, scalar):
+    '''
+    Given a matrix, two integers representing the indices of
+     two different columns, and a scalar,
+     add the first column by the scalar times the second column.
+    
+    Note that this does not modify the given matrix in place,
+     but rather returns a new matrix.
+    '''
+    if column_index1 < 0 or column_index1 >= len(matrix[0]):
+        raise ValueError("Column index does not make sense")
+    if column_index2 < 0 or column_index2 >= len(matrix[0]):
+        raise ValueError("Column index does not make sense")
+    
+    return [
+        [
+            matrix[i][j]+
+              (scalar if j == column_index1 else 0) *
+                matrix[i][column_index2]
+            for j in range(len(matrix[i]))
+        ]
+        for i in range(len(matrix))
+    ]
+
 def transpose(matrix):
     '''
     Compute the transpose of the given vector
@@ -893,3 +917,95 @@ def calc_best_fit_coefficients(funcs, points):
         qr_decomposition(matrix),
         [point[1] for point in points]
     )
+
+'''
+EIGENVALUES AND EIGENVECTORS
+'''
+
+def naive_qr_algorithm(matrix, tolerance=1e-10):
+    '''
+    Find the Schur decomposition of a matrix
+     using a basic implementation of the QR algorithm
+
+    Note that this function returns a tuple containing:
+     - an orthogonal matrix Q
+     - an upper triangular matrix T
+    If the original matrix is A, then A=QT(Q^T),
+     where Q^T denotes the transpose of Q.
+
+    Assumes that the matrix has eigenvalues of distinct magnitudes,
+     and that all of the matrix's eigenvalues are real.
+    '''
+    if len(matrix) != len(matrix[0]):
+        raise ValueError("The matrix must be square")
+
+    q = identity(len(matrix))
+    t = matrix
+    while True:
+        # Exit if t is now upper-triangular
+        for i in range(len(matrix)):
+            is_upper = True
+            for j in range(i):
+                if abs(t[i][j]) > tolerance:
+                    is_upper = False
+                    break
+            if not is_upper:
+                break
+        else:
+            break
+        # Find the QR decomposition of t
+        #  and let the new value of t be RQ:
+        new_q, new_r = qr_decomposition(t)
+        t = matrix_matrix_prod(new_r, new_q)
+        # t = q^T*matrix*q = new_q*new_r
+        # new_t = new_r*new_q = new_q^T*t*new_q
+        # -> new_t=(q*new_q)^T* matrix * (q*new_q)
+        # Thus, multiply q by new_q:
+        q = matrix_matrix_prod(q, new_q)
+    return q, t
+
+def find_eigendecomposition(schur_decomp):
+    '''
+    Given the Schur decomposition of a matrix,
+     find all of the eigendecomposition of that matrix.
+
+    Note that this function returns a tuple containing:
+     - a non-singular matrix S
+     - a diagonal matrix D
+    If the original matrix is A, then A=SD(S^-1)
+
+    Assumes that the matrix has a full eigenbasis.
+    '''
+
+    eigenbasis_so_far, upper = schur_decomp
+    for i in range(len(upper)):
+        for j in range(i):
+            # Exit if we find a generalized eigenvector:
+            # (i.e. if this matrix does not have a full eigenbasis
+            if abs(upper[i][i]-upper[j][j]) <= TOLERANCE:
+                if abs(upper[j][i]) > TOLERANCE:
+                    raise ValueError("This matrix does not have a full eigenbasis")
+                else:
+                    continue
+            # Eliminate the upper[j][i] using a similarity transformation:
+            factor = upper[j][i]/(upper[i][i]-upper[j][j])
+            upper = matrix_column_addition(
+                upper,
+                i,
+                j,
+                factor
+            )
+            upper = matrix_row_addition(
+                upper,
+                j,
+                i,
+                -factor
+            )
+            # Update the eigenbasis accordingly:
+            eigenbasis_so_far = matrix_column_addition(
+                eigenbasis_so_far,
+                i,
+                j,
+                factor
+            )
+    return eigenbasis_so_far, upper

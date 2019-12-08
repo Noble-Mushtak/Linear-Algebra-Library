@@ -267,6 +267,30 @@ class TestMatrixOperations(TestCase):
              [4,5],
              [7,8]]
         )
+        self.assertMatrixAlmostEqual(
+            matrix_column_addition(
+                [[1, 9, 3, 4],
+                 [2, 4, 6, 8]],
+                3,
+                2,
+                -1
+            ),
+            [[1, 9, 3, 1],
+             [2, 4, 6, 2]]
+        )
+        self.assertMatrixAlmostEqual(
+            matrix_column_addition(
+                [[1, 9, 3],
+                 [2, 4, 6],
+                 [4, 7, 2]],
+                0,
+                1,
+                2
+            ),
+            [[19, 9, 3],
+             [10, 4, 6],
+             [18, 7, 2]]
+        )
     
     def test_transpose(self):
         self.assertMatrixAlmostEqual(
@@ -2348,6 +2372,113 @@ class TestQRDecomposition(TestCase):
                  [(-1, -3), 7]]
             ),
             [1.792540278084278, -5.098874420657719, 1.5471198410946903, 1.4468108585301351]
+        )
+
+class TestEigenDecomposition(TestCase):
+    def template_test_qr_algorithm(self, matrix, func=naive_qr_algorithm):
+        q, t = func(matrix)
+        self.assertMatrixAlmostEqual(
+            matrix_matrix_prod(
+                q,
+                transpose(q)
+            ),
+            identity(len(matrix))
+        )
+        for i in range(len(matrix)):
+            for j in range(i):
+                self.assertAlmostEqual(t[i][j], 0)
+        self.assertMatrixAlmostEqual(
+            matrix_matrix_prod(
+                q,
+                matrix_matrix_prod(t, transpose(q))
+            ),
+            matrix
+        )
+    
+    def test_naive_qr(self):
+        # The QR algorithm does not converge for the below test
+        #  since both 1 and -1 are eigenvalues:
+        """
+        self.template_test_qr_algorithm(
+            [[0, 0, 1],
+             [0, -7, 0],
+             [1, 0, 0]]
+        )
+        """
+        self.template_test_qr_algorithm(
+            [[2, 0, 0],
+             [0, 4, 0],
+             [0, 0, 5]]
+        )
+        self.template_test_qr_algorithm(
+            [[1, 2, 0],
+             [0, 3, 4],
+             [0, 5, 3]]
+        )
+        self.template_test_qr_algorithm(
+            [[1, 7, -10],
+             [6, 5, 3],
+             [4, 2, 4]]
+        )
+        self.template_test_qr_algorithm(
+            [[1, 7, 8],
+             [6, 5, 11],
+             [4, 2, 6]]
+        )
+        self.template_test_qr_algorithm(
+            [[3.8233446726508657, 0.8527744578229379, 3.954967620404793, 0.992554714170184, 3.4342901742549614],
+             [8.485936056597605, 2.823002063332477, 6.761278431872077, 6.260745853171633, 9.668021196502322],
+             [4.3615501871796, 7.819300001994922, 3.8272111828724897, 7.646100326398014, 5.877053759570529],
+             [2.0046732573137884, 4.664296627228513, 7.53047207023199, 3.375836240022881, 2.0611166527842197],
+             [1.0410408724010711, 6.7298256494778546, 4.95371723999874, 6.522881194194628, 1.0132925800616244]]
+        )
+    
+    def template_test_eigendecomp(self, matrix, func=naive_qr_algorithm):
+        s, diag = find_eigendecomposition(func(matrix))
+        for i in range(len(diag)):
+            for j in range(len(diag)):
+                if i != j:
+                    self.assertAlmostEqual(diag[i][j], 0)
+        self.assertMatrixAlmostEqual(
+            matrix_matrix_prod(
+                s,
+                matrix_matrix_prod(
+                    diag,
+                    find_inverse_using_lu_decomp(
+                        lu_decomposition(s)
+                    )
+                )
+            ),
+            matrix
+        )
+    
+    def test_eigendecomp(self):
+        self.template_test_eigendecomp(
+            [[2, 0, 0],
+             [0, 4, 0],
+             [0, 0, 5]]
+        )
+        self.template_test_eigendecomp(
+            [[1, 2, 0],
+             [0, 3, 4],
+             [0, 5, 3]]
+        )
+        self.template_test_eigendecomp(
+            [[1, 7, -10],
+             [6, 5, 3],
+             [4, 2, 4]]
+        )
+        self.template_test_eigendecomp(
+            [[1, 7, 8],
+             [6, 5, 11],
+             [4, 2, 6]]
+        )
+        self.template_test_eigendecomp(
+            [[3.8233446726508657, 0.8527744578229379, 3.954967620404793, 0.992554714170184, 3.4342901742549614],
+             [8.485936056597605, 2.823002063332477, 6.761278431872077, 6.260745853171633, 9.668021196502322],
+             [4.3615501871796, 7.819300001994922, 3.8272111828724897, 7.646100326398014, 5.877053759570529],
+             [2.0046732573137884, 4.664296627228513, 7.53047207023199, 3.375836240022881, 2.0611166527842197],
+             [1.0410408724010711, 6.7298256494778546, 4.95371723999874, 6.522881194194628, 1.0132925800616244]]
         )
 
 if __name__ == "__main__":
