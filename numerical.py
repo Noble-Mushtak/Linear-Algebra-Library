@@ -549,7 +549,7 @@ LU DECOMPOSITION
 
 def lu_decomposition(matrix, find_pivot=naive_pivot_strategy):
     '''
-    Compute the LU decomposition of the given matrixx
+    Compute the LU decomposition of the given matrix
 
     Note that this function returns a tuple containing:
      - a permutation representing which row in the original matrix that each row in the upper-triangular matrix corresponds to
@@ -786,21 +786,7 @@ def find_inverse_using_lu_decomp(lu_decomp):
         )
     return transpose(column_vectors)
 
-def find_determinant_using_lu_decomp(lu_decomp):
-    '''
-    Given the LU-decomposition of a square matrix A,
-     compute the determinant of the matrix
-    '''
-    row_perm, lower, upper, column_perm = lu_decomp
-    if len(row_perm) != len(column_perm):
-        raise ValueError("The matrix must be square")
-        
-    determinant = permutation_sign(row_perm)*permutation_sign(column_perm)
-    for i in range(len(row_perm)):
-        determinant *= upper[i][i]
-    return determinant
-
-def find_naive_determinant(matrix):
+def naive_determinant(matrix):
     '''
     Compute the determinant of the given matrix
      by looping through all the possible patterns
@@ -814,6 +800,20 @@ def find_naive_determinant(matrix):
         for i, j in enumerate(perm):
             pattern *= matrix[i][j]
         determinant += pattern
+    return determinant
+
+def find_determinant_using_lu_decomp(lu_decomp):
+    '''
+    Given the LU-decomposition of a square matrix A,
+     compute the determinant of the matrix
+    '''
+    row_perm, lower, upper, column_perm = lu_decomp
+    if len(row_perm) != len(column_perm):
+        raise ValueError("The matrix must be square")
+        
+    determinant = permutation_sign(row_perm)*permutation_sign(column_perm)
+    for i in range(len(row_perm)):
+        determinant *= upper[i][i]
     return determinant
 
 '''
@@ -904,6 +904,11 @@ def calc_best_fit_coefficients(funcs, points):
 
     Assumes that the functions f1, f2, ..., fn
      are all linearly independent.
+
+    Note that, in the points array, each x in a point (x, y)
+     should be a member of R, in which case x is of type number,
+     or should be a member of R^n for n >= 2,
+     in which case x is a tuple of n numbers.
     '''
 
     matrix = [

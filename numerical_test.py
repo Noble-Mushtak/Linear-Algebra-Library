@@ -2078,13 +2078,13 @@ class TestImageKernelInverse(TestCase):
     
     def test_naive_determinant(self):
         self.assertAlmostEqual(
-            find_naive_determinant(
+            naive_determinant(
                 identity(5)
             ),
             1
         )
         self.assertAlmostEqual(
-            find_naive_determinant(
+            naive_determinant(
                 [[8, 9, 1],
                  [10, 2, 4],
                  [10, 3, 0]]
@@ -2092,7 +2092,7 @@ class TestImageKernelInverse(TestCase):
             274
         )
         self.assertAlmostEqual(
-            find_naive_determinant(
+            naive_determinant(
                 [[-2, -8, -10, -7, -4],
                  [2, 2, 10, 9, -7],
                  [-3, 5, 8, -4, -10],
@@ -2102,7 +2102,7 @@ class TestImageKernelInverse(TestCase):
             11965
         )
         self.assertAlmostEqual(
-            find_naive_determinant(
+            naive_determinant(
                 [[9, 9, -10, 8, -4],
                  [-5, 2, -2, -2, 7],
                  [8, -4, 7, 7, -6],
@@ -2112,7 +2112,7 @@ class TestImageKernelInverse(TestCase):
             9848
         )
         self.assertAlmostEqual(
-            find_naive_determinant(
+            naive_determinant(
                 [[0, 0, 0],
                  [0, 0, 0],
                  [0, 0, 0]]
@@ -2120,7 +2120,7 @@ class TestImageKernelInverse(TestCase):
             0
         )
         self.assertAlmostEqual(
-            find_naive_determinant(
+            naive_determinant(
                 [[0, 0, 0],
                  [0, 2, 0],
                  [0, 3, 0]]
@@ -2128,7 +2128,7 @@ class TestImageKernelInverse(TestCase):
             0
         )
         self.assertAlmostEqual(
-            find_naive_determinant(
+            naive_determinant(
                 [[0, 0, 0],
                  [0, 2, 3],
                  [0, 0, 0]]
@@ -2136,7 +2136,7 @@ class TestImageKernelInverse(TestCase):
             0
         )
         self.assertAlmostEqual(
-            find_naive_determinant(
+            naive_determinant(
                 [[1, 8, 7, 4],
                  [5, 3, -2, 6],
                  [8, 9, 1, 3],
@@ -2145,7 +2145,7 @@ class TestImageKernelInverse(TestCase):
             0
         )
         self.assertAlmostEqual(
-            find_naive_determinant(
+            naive_determinant(
                 [[1, 8, 7, 4],
                  [5, 3, -2, 6],
                  [8, 9, 1, 3],
@@ -2154,7 +2154,7 @@ class TestImageKernelInverse(TestCase):
             0
         )
         self.assertAlmostEqual(
-            find_naive_determinant(
+            naive_determinant(
                 [[0, 0, 2, 9],
                  [1, -5, 6, 7],
                  [4, 6, 7, 8],
@@ -2163,7 +2163,7 @@ class TestImageKernelInverse(TestCase):
             0
         )
         self.assertAlmostEqual(
-            find_naive_determinant(
+            naive_determinant(
                 [[1, 5, 2, 4],
                  [1, 5, 3, 7],
                  [1, 5, 9, 8],
