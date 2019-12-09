@@ -23,7 +23,7 @@ This repo was created as an extra credit project for my MATH 2331: Linear Algebr
  * Finding the determinant of a matrix given the LU decomposition
  * QR decomposition using Householder reflections
  * Finding the least-squares solution of a system of equations using QR decomposition
- * Calculating the best-fit coefficients of a linear regression model
+ * Calculating the best-fit coefficients of a regression model using the linear least squares estimator
  * Schur decomposition using a naive form of the QR algorithm
  * Finding the eigendecomposition given the Schur decomposition
 
