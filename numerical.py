@@ -1014,3 +1014,29 @@ def find_eigendecomposition(schur_decomp):
                 factor
             )
     return eigenbasis_so_far, upper
+
+def find_roots_of_polynomial(poly_coefficients, find_schur_decomp=naive_qr_algorithm):
+    '''
+    Given an array of numbers [c0, c1, ..., c(n-1)],
+     find the roots of the polynomial
+     p(t)=c0 + c1*t + ... + c(n-1) * t^(n-1) + t^n
+
+    Note that this function is only as good
+     as the find_schur_decomp function.
+    For example, if one uses naive_qr_algorithm,
+     then this function will only work for polynomials
+     such that all of their roots are real
+     and have distinct magnitudes.
+    '''
+
+    degree = len(poly_coefficients)
+    companion_matrix = [
+        [
+            1 if j == i+1 else
+            -poly_coefficients[j] if i == degree-1 else 0
+            for j in range(degree)
+        ]
+        for i in range(degree)
+    ]
+    q, upper = find_schur_decomp(companion_matrix)
+    return [upper[i][i] for i in range(degree)]

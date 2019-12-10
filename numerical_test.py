@@ -2480,6 +2480,30 @@ class TestEigenDecomposition(TestCase):
              [2.0046732573137884, 4.664296627228513, 7.53047207023199, 3.375836240022881, 2.0611166527842197],
              [1.0410408724010711, 6.7298256494778546, 4.95371723999874, 6.522881194194628, 1.0132925800616244]]
         )
+    
+    def template_test_roots(self, poly):
+        roots = find_roots_of_polynomial(poly)
+        for root in roots:
+            answer = root**len(poly)
+            for i, coeff in enumerate(poly):
+                answer += coeff*root**i
+            self.assertAlmostEqual(answer, 0, places=6)
+    
+    def test_roots(self):
+        # x^2-4x+3
+        self.template_test_roots([3, -4])
+        # x^2+x-5
+        self.template_test_roots([-5, 1])
+        # x^2-x-1
+        self.template_test_roots([-1, -1])
+        # x^2-0.02x-0.9999
+        self.template_test_roots([-0.9999, -.02])
+        # x^3-1.8x^2-0.21x+1.078
+        self.template_test_roots([1.078, -0.21, -1.8])
+        # x^4 - 10.42384887824002 x^3 + 37.54342259712304 x^2 - 52.6825204257283 x + 20.6742621229336
+        self.template_test_roots([20.6742621229336, -52.6825204257283, 37.54342259712304, -10.42384887824002])
+        # x^5-3x^4-23x^3+51x^2+94x-120
+        self.template_test_roots([-120, 94, 51, -23, -3])
 
 if __name__ == "__main__":
     unittest.main()
