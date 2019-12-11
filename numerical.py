@@ -72,6 +72,17 @@ def lInfinityNorm(vector):
 
     return max([abs(x) for x in vector])
 
+def normalize(vector, norm=l2Norm):
+    '''
+    Scale the given vector so that it has norm 1.
+
+    If the given vector has norm 0, then return the given vector.
+    '''
+    norm_of_vector = norm(vector)
+    if norm_of_vector == 0:
+        return vector
+    return vector_scale(vector, 1/norm_of_vector)
+
 def absolute_error(actual, computed, norm=l2Norm):
     '''
     Given the actual answer to a problem and the computed answer,
@@ -824,7 +835,7 @@ def qr_decomposition(matrix):
     '''
     Compute the QR decomposition of the given matrix
      using Householder reflections,
-     assuming the matrix has at least as many rows than columns
+     assuming the matrix has at least as many rows than columns.
 
     Note that this function outputs a tuple containing:
      - An orthogonal (square) matrix
@@ -856,11 +867,8 @@ def qr_decomposition(matrix):
             for j in range(len(r_so_far))
         ]
         # Normalize this vector:
-        diff_vector_normalized = vector_scale(
-            difference_vector,
-            1/l2Norm(difference_vector)
-        )
-        # Compute the reflection matrix about diff_vector:
+        diff_vector_normalized = normalize(difference_vector)
+        # Compute the reflection matrix about diff_vector_normalized:
         new_q = [
             [
                (1 if i == j else 0)

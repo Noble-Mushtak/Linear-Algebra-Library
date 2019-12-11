@@ -54,6 +54,28 @@ class TestVectorOperations(TestCase):
         self.assertAlmostEqual(l2Norm([-1, 2, 5]), math.sqrt(30))
         self.assertAlmostEqual(lInfinityNorm([-1, 2, 5]), 5)
     
+    def test_normalize(self):
+        self.assertListAlmostEqual(
+            normalize([0, 0, 0]),
+            [0, 0, 0]
+        )
+        self.assertListAlmostEqual(
+            normalize([1, 1, 1]),
+            [1/math.sqrt(3), 1/math.sqrt(3), 1/math.sqrt(3)]
+        )
+        self.assertListAlmostEqual(
+            normalize([1, -1, 1], l1Norm),
+            [1/3, -1/3, 1/3]
+        )
+        self.assertListAlmostEqual(
+            normalize([1, -1, 2], l1Norm),
+            [1/4, -1/4, 1/2]
+        )
+        self.assertListAlmostEqual(
+            normalize([1, -1, 2], lInfinityNorm),
+            [1/2, -1/2, 1]
+        )
+    
     def test_error(self):
         self.assertAlmostEqual(
             absolute_error([1, 1], [2, 0]),
@@ -2240,6 +2262,12 @@ class TestQRDecomposition(TestCase):
              [-5, 2, -4, 7],
              [2, 8, 1, -6],
              [-6, -10, -4, -7]]
+        )
+        self.template_test_qr(
+            [[1, 1, 1],
+             [1e-40, 0, 0],
+             [0, 1e-40, 0],
+             [0, 0, 1e-40]]
         )
 
     def test_least_squares(self):
