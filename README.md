@@ -26,5 +26,6 @@ This repo was created as an extra credit project for my MATH 2331: Linear Algebr
  * Calculating the best-fit coefficients of a regression model using the linear least squares estimator
  * Schur decomposition using a naive form of the QR algorithm
  * Finding the eigendecomposition given the Schur decomposition
+ * Finding the roots of a monic polynomial by finding the Schur decomposition of the companion matrix
 
 Finally, the `numerical_test.py` file contains several unit tests which ensure that all of these functions work as intended.

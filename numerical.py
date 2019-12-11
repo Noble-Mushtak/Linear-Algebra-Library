@@ -1047,4 +1047,4 @@ def find_roots_of_polynomial(poly_coefficients, find_schur_decomp=naive_qr_algor
         for i in range(degree)
     ]
     q, upper = find_schur_decomp(companion_matrix)
-    return [upper[i][i] for i in range(degree)]
+    return sorted([upper[i][i] for i in range(degree)])
